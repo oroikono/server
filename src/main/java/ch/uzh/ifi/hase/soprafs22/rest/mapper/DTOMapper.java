@@ -1,12 +1,10 @@
 package ch.uzh.ifi.hase.soprafs22.rest.mapper;
-
 import ch.uzh.ifi.hase.soprafs22.entity.User;
 import ch.uzh.ifi.hase.soprafs22.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs22.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs22.rest.dto.UserPutDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-
 /**
  * DTOMapper
  * This class is responsible for generating classes that will automatically
@@ -19,8 +17,8 @@ import org.mapstruct.factory.Mappers;
  * creating information (POST).
  */
 @Mapper
-public interface DTOMapper {
-
+public interface DTOMapper
+{
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
   @Mapping(source = "name", target = "name")

@@ -25,6 +25,7 @@ public class UserServiceTest {
   private UserService userService;
 
   private User testUser;
+  private User user1;
 
   @BeforeEach
   public void setup() {
@@ -90,41 +91,59 @@ public class UserServiceTest {
   }
 
     @Test
-    public void testLoginUser(){
-        User testUser2 = new User();
-        testUser2.setName("testName2");
-        testUser2.setUsername("testUsername2");
-        testUser2.setPassword("testPassword2");
+    public void testLoginUserSuccessful(){
 
+        userService.createUser(testUser);
+        Mockito.when(userRepository.findUserById(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        testUser.setStatus(UserStatus.OFFLINE);
 
-        User createdUser2 = userService.createUser(testUser2);
-        createdUser2.setStatus(UserStatus.ONLINE);
+        userService.loginUser(testUser);
 
-        userService.loginUser(createdUser2);
-
-        assertEquals(userRepository.findByUsername("testUsername2").getStatus(), UserStatus.ONLINE);
+        assertEquals(userRepository.findByUsername("testUsername").getStatus(), UserStatus.ONLINE);
      }
+
+    @Test
+    public void testLoginUserAlreadyIn(){
+
+        userService.createUser(testUser);
+        Mockito.when(userRepository.findUserById(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        testUser.setStatus(UserStatus.ONLINE);
+
+        assertThrows(ResponseStatusException.class, () -> userService.loginUser(testUser));
+    }
 
 
     @Test
     public void testLogoutUser(){
-        userRepository.deleteAll();
+        userService.createUser(testUser);
+        Mockito.when(userRepository.findUserById(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        testUser.setStatus(UserStatus.ONLINE);
 
-        User testUser = new User();
-        testUser.setName("testName");
-        testUser.setUsername("testUsername");
-        testUser.setPassword("testPassword");
+        userService.logoutUser(testUser.getId());
 
-
-        User test = userService.createUser(testUser);
-        User loggedInUser = userService.loginUser(test);
-
-        assertNotNull(loggedInUser);
-        assertEquals(UserStatus.ONLINE, userRepository.findByUsername("testUsername").getStatus());
-
-        userService.logoutUser(loggedInUser.getId());
         assertEquals(userRepository.findByUsername("testUsername").getStatus(), UserStatus.OFFLINE);
     }
+    @Test
+    public void testUpdateUser(){
+        userService.createUser(testUser);
+        Mockito.when(userRepository.findUserById(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        // given
+        user1 = new User();
+        user1.setName("testName");
+        user1.setUsername("testUsername");
+        user1.setPassword("password");
+        user1.setCreation_date(new Date());
+        user1.setStatus(UserStatus.OFFLINE);
+        user1.setBirthday(new Date());
+
+        userService.createUser(user1);
+        assertThrows(ResponseStatusException.class, () -> userService.updateUser(testUser.getId(),user1));
+
+        }
     //@Test
     //    public void checkifUserExistsTest() {
     //        // given -> a first user has already been created
